@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B2CFBE74-9279-4191-9670-75D55CDEC75E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoPivot", "src\ProtoPivot\ProtoPivot.csproj", "{05BE1A93-910F-4299-BFB0-FBCCEDD1FC8C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{36C1CC96-3450-4AF6-9970-B85B5015E384}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoPivot.Tests", "tests\ProtoPivot.Tests\ProtoPivot.Tests.csproj", "{616D05FA-E776-4CA5-83DA-48279CAFD3BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{05BE1A93-910F-4299-BFB0-FBCCEDD1FC8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05BE1A93-910F-4299-BFB0-FBCCEDD1FC8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05BE1A93-910F-4299-BFB0-FBCCEDD1FC8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05BE1A93-910F-4299-BFB0-FBCCEDD1FC8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{616D05FA-E776-4CA5-83DA-48279CAFD3BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{616D05FA-E776-4CA5-83DA-48279CAFD3BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{616D05FA-E776-4CA5-83DA-48279CAFD3BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{616D05FA-E776-4CA5-83DA-48279CAFD3BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{05BE1A93-910F-4299-BFB0-FBCCEDD1FC8C} = {B2CFBE74-9279-4191-9670-75D55CDEC75E}
+		{616D05FA-E776-4CA5-83DA-48279CAFD3BF} = {36C1CC96-3450-4AF6-9970-B85B5015E384}
+	EndGlobalSection
+EndGlobal
