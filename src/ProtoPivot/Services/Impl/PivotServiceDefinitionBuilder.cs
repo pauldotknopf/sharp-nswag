@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using ProtoPivot.Services;
 
 namespace ProtoPivot.Impl;
@@ -12,8 +13,6 @@ public class PivotServiceDefinitionBuilder : IPivotServiceDefinitionBuilder
     public PivotServiceDefinition BuildServiceDefinition<T>()
     {
         var routes = new List<PivotRouteDefinition>();
-
-        var serviceAttributes = typeof(T).GetCustomAttributes(inherit: true);
 
         foreach (var method in typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance))
         {
@@ -36,7 +35,8 @@ public class PivotServiceDefinitionBuilder : IPivotServiceDefinitionBuilder
             if (verbs.Count > 1) throw new NotSupportedException($"you can only provide one HTTP verb for {method.Name}");
 
             var parameters = new List<PivotRouteParameterDefinition>();
-            
+
+            int parameterIndex = 0;
             foreach(var param in method.GetParameters())
             {
                 var paramAttributes = param.GetCustomAttributes(inherit: true)
@@ -55,24 +55,55 @@ public class PivotServiceDefinitionBuilder : IPivotServiceDefinitionBuilder
                 
                 parameters.Add(new PivotRouteParameterDefinition
                 {
+                    Index = parameterIndex,
                     Name = param.Name,
                     Type = param.ParameterType,
                     Source = paramAttributes[0].BindingSource
                 });
+
+                parameterIndex++;
             }
 
             if (parameters.Count(x => x.Source.IsFromRequest) > 1)
             {
                 throw new NotSupportedException($"method {method.Name} has multiple request body parameters");
             }
-   
+
+            var routePattern = RoutePatternFactory.Parse(routeModel.Template);
+
+            foreach (var pattern in routePattern.Parameters)
+            {
+                if (pattern.IsOptional)
+                {
+                    throw new Exception($"method {method.Name} has an optional route value {pattern.Name}, this is not supported");
+                }
+            }
+            
+            foreach (var routeParameter in parameters.Where(x => x.Source == BindingSource.Path))
+            {
+                if (routePattern.Parameters.All(x => x.Name != routeParameter.Name))
+                {
+                    throw new NotSupportedException(
+                        $"method {method.Name} calls for route value {routeParameter.Name} that wasn't defined in the route");
+                }
+            }
+
+            foreach (var requiredRouteValue in routePattern.RequiredValues.Keys)
+            {
+                if (parameters.All(x => x.Name != requiredRouteValue))
+                {
+                    throw new NotSupportedException($"method {method.Name} doesn't reference required route value {requiredRouteValue}");
+                }
+            }
+            
             routes.Add(new PivotRouteDefinition
             {
                 ServiceType = typeof(T),
                 MethodInfo = method,
                 Route = routeModel.Template,
                 Order = routeModel.Order,
-                Verb = verbs[0]
+                Verb = verbs[0],
+                Parameters = parameters
             });
         }
 

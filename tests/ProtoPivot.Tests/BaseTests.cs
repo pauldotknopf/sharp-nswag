@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.TestHost;
 using ProtoPivot.Impl;
+using ProtoPivot.NetClient;
 
 namespace ProtoPivot.Tests;
 
@@ -13,13 +14,14 @@ public class BaseTests
             {
                 services.AddRouting();
                 services.AddProtoPivotServices();
+                services.AddPivotNetClientServices();
                 services.AddSingleton(impl);
             }).Configure(app =>
             {
                 app.UseRouting();
                 app.UseEndpoints(endpoints =>
                 {
-                    endpoints.MapProtoPivotService<EndpointInvokingTests.ITestService>(path);
+                    endpoints.MapProtoPivotService<T>(path);
                 });
             }));
     }

@@ -23,19 +23,23 @@ public class EndpointInvokingTests : BaseTests
     {
         [HttpGet]
         [Route("myroute")]
-        void MyRoute();
+        Task MyRoute();
 
         [Route("routevalue/{id}")]
         [HttpPost]
-        void RouteWithRouteValue([FromRoute]int id);
+        Task RouteWithRouteValue([FromRoute]int id);
         
         [Route("routewithjsonbody")]
         [HttpPost]
-        void RouteWithJsonBody([FromBody]JsonBody body);
+        Task RouteWithJsonBody([FromBody]JsonBody body);
         
         [Route("methodwithresult")]
         [HttpPost]
-        JsonBody MethodWithResult();
+        Task<JsonBody> MethodWithResult();
+        
+        [Route("MethodWithResultAsync")]
+        [HttpPost]
+        ValueTask<JsonBody> MethodWithResultAsync();
     }
     
     [TestMethod]
@@ -113,16 +117,44 @@ public class EndpointInvokingTests : BaseTests
     {
         var impl = new Mock<ITestService>();
         impl.Setup(x => x.MethodWithResult())
-            .Returns(new JsonBody
+            .Returns(Task.FromResult(new JsonBody
             {
                 Name = "Paul",
                 YearOfBirth = 1988
-            });
+            }));
         
         var testServer = BuildTestServer("test", impl.Object);
        
         var client = testServer.CreateClient();
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, "/test/methodwithresult");
+        var responseContent = await client.SendAsync(requestMessage);
+        
+        responseContent.StatusCode.Should().Be(HttpStatusCode.OK);
+        var responseBody = await responseContent.Content.ReadAsStringAsync();
+        var responseDeserialized = JsonSerializer.Deserialize<JsonBody>(responseBody,new JsonSerializerOptions()
+        {
+            PropertyNameCaseInsensitive = true,
+        });
+        responseDeserialized.Should().NotBeNull();
+        responseDeserialized.Name.Should().Be("Paul");
+        responseDeserialized.YearOfBirth.Should().Be(1988);
+    }
+    
+    [TestMethod]
+    public async Task CanInvokeMethodWithResultAsync()
+    {
+        var impl = new Mock<ITestService>();
+        impl.Setup(x => x.MethodWithResultAsync())
+            .Returns(ValueTask.FromResult(new JsonBody
+            {
+                Name = "Paul",
+                YearOfBirth = 1988
+            }));
+        
+        var testServer = BuildTestServer("test", impl.Object);
+       
+        var client = testServer.CreateClient();
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "/test/methodwithresultasync");
         var responseContent = await client.SendAsync(requestMessage);
         
         responseContent.StatusCode.Should().Be(HttpStatusCode.OK);
