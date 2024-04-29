@@ -5,6 +5,7 @@ Define your API using protobuf:
 **api.protobuf**
 
 ```
+syntax = "proto3";
 message SearchRequest {
     string query = 1;
     int32 page_number = 2;
