@@ -21,6 +21,7 @@ internal class PivotServiceEndpointDataSource : EndpointDataSource
                 },
                 RoutePatternFactory.Parse(Path.Combine(path, route.Route)), route.Order ?? 0);
             builder.Metadata.Add(new HttpMethodMetadata(new []{route.Verb}));
+            builder.Metadata.Add(route.MethodInfo);
             endpoints.Add(builder.Build());
         }
         

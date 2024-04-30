@@ -7,6 +7,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddRouting();
 builder.Services.AddProtoPivotServices();
 builder.Services.AddSingleton<IProductService, ProductService>();
+builder.Services.AddOpenApiDocument();
+builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
@@ -17,6 +19,13 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseOpenApi();
+app.UseSwaggerUi();
+app.UseReDoc(options =>
+{
+    options.Path = "/redoc";
+});
 
 app.UseHttpsRedirection();
 

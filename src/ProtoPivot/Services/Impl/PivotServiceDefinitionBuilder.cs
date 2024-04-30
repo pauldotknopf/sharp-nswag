@@ -14,7 +14,7 @@ public class PivotServiceDefinitionBuilder : IPivotServiceDefinitionBuilder
     {
         var routes = new List<PivotRouteDefinition>();
 
-        foreach (var method in typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var method in typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
             Console.WriteLine(method.Name);
             var attributes = method.GetCustomAttributes(inherit: true);
