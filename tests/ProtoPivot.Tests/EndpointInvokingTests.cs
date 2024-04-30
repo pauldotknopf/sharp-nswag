@@ -58,14 +58,14 @@ public class EndpointInvokingTests : BaseTests
     }
 
     [TestMethod]
-    public async Task CanGet404IfInvalidVerb()
+    public async Task CanGet405IfInvalidVerb()
     {
         var testServer = BuildTestServer("test", new Mock<ITestService>().Object);
        
         var client = testServer.CreateClient();
         var responseContent = await client.SendAsync(new HttpRequestMessage(HttpMethod.Post, "/test/myroute"));
         
-        responseContent.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        responseContent.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
     }
     
     [TestMethod]

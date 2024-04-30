@@ -20,6 +20,7 @@ internal class PivotServiceEndpointDataSource : EndpointDataSource
                     await context.RequestServices.GetRequiredService<IPivotResponseHandler>().HandleResponse(context, route);
                 },
                 RoutePatternFactory.Parse(Path.Combine(path, route.Route)), route.Order ?? 0);
+            builder.Metadata.Add(new HttpMethodMetadata(new []{route.Verb}));
             endpoints.Add(builder.Build());
         }
         

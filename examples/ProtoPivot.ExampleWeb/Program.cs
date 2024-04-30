@@ -24,15 +24,6 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapProtoPivotService<IProductService>("product");
-});
-
-app.MapGet("/", (d) =>
-{
-    //return "Hello World!";
-    return Task.CompletedTask;
-});
+app.MapProtoPivotService<IProductService>("product");
 
 app.Run();
