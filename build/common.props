@@ -1,0 +1,10 @@
+<Project>
+    <Import Project="version.props" />
+    <PropertyGroup>
+        <Authors>Paul Knopf</Authors>
+        <Description>A tool to help you declare API endpoints for both clients and servers.</Description>
+        <Copyright>2024</Copyright>
+        <PackageProjectUrl>https://github.com/pauldotknopf/pivot</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/pauldotknopf/pivot</RepositoryUrl>
+    </PropertyGroup>
+</Project>
