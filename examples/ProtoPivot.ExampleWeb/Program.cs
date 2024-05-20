@@ -33,6 +33,6 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapProtoPivotService<IProductService>("product");
+app.MapProtoPivotService<IProductService>("api");
 
 app.Run();
