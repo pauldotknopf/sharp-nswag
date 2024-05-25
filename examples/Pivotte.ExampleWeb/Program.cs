@@ -1,4 +1,5 @@
 using Pivotte;
+using Pivotte.ExampleWeb;
 using Pivotte.ExampleWeb.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +34,6 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapPivotteService<IProductService>("api");
+app.MapPivotteService<IProductService>("api", (route, _) => route.AddEndpointFilter<CustomEndpointFilter>());
 
 app.Run();

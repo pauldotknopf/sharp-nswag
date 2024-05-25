@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Pivotte.Services;
@@ -14,9 +15,9 @@ public static class Extensions
         return services;
     }
     
-    public static void MapPivotteService<T>(this IEndpointRouteBuilder endpointsRouteBuilder, string path)
+    public static void MapPivotteService<T>(this IEndpointRouteBuilder endpointsRouteBuilder, string path, Action<RouteHandlerBuilder, PivotteRouteDefinition> builder = null)
     {
         var serviceDefinition = endpointsRouteBuilder.ServiceProvider.GetRequiredService<IPivotteServiceDefinitionBuilder>().BuildServiceDefinition<T>();
-        endpointsRouteBuilder.DataSources.Add(new PivotteServiceEndpointDataSource(serviceDefinition, path));
+        endpointsRouteBuilder.DataSources.Add(new PivotteServiceEndpointDataSource(serviceDefinition, path, builder));
     }
 }

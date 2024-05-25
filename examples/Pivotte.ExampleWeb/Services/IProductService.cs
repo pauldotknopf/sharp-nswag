@@ -3,6 +3,7 @@ using Pivotte.ExampleWeb.Models;
 
 namespace Pivotte.ExampleWeb.Services;
 
+[PivotteService("Product")]
 public interface IProductService
 {
     [Route("get/{id}")]

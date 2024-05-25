@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,14 +44,14 @@ public class Generator : IGenerator
         public string EnvironmentName { get; set; } = "environmentname";
     }
 
-    private List<EndpointDataSource> GetEndpointDataSources(IEnumerable<Type> services)
+    private List<EndpointDataSource> GetEndpointDataSources(IEnumerable<Type> services, Action<RouteHandlerBuilder, PivotteRouteDefinition> builder = null)
     {
         var result = new List<EndpointDataSource>();
         
         foreach (var service in services)
         {
             var serviceDefinition = _pivotteServiceDefinition.BuildServiceDefinition(service);
-            result.Add(new PivotteServiceEndpointDataSource(serviceDefinition, "/test"));
+            result.Add(new PivotteServiceEndpointDataSource(serviceDefinition, "/test", builder));
         }
 
         return result;
