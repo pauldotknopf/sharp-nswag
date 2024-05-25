@@ -7,16 +7,16 @@ namespace Pivotte;
 
 public static class Extensions
 {
-    public static IServiceCollection AddPivotServices(this IServiceCollection services)
+    public static IServiceCollection AddPivotteServices(this IServiceCollection services)
     {
-        services.AddSingleton<IPivotServiceDefinitionBuilder, PivotServiceDefinitionBuilder>();
-        services.AddSingleton<IPivotResponseHandler, PivotResponseHandler>();
+        services.AddSingleton<IPivotteServiceDefinitionBuilder, PivotteServiceDefinitionBuilder>();
+        services.AddSingleton<IPivotteResponseHandler, PivotteResponseHandler>();
         return services;
     }
     
-    public static void MapPivotService<T>(this IEndpointRouteBuilder endpointsRouteBuilder, string path)
+    public static void MapPivotteService<T>(this IEndpointRouteBuilder endpointsRouteBuilder, string path)
     {
-        var serviceDefinition = endpointsRouteBuilder.ServiceProvider.GetRequiredService<IPivotServiceDefinitionBuilder>().BuildServiceDefinition<T>();
-        endpointsRouteBuilder.DataSources.Add(new PivotServiceEndpointDataSource(serviceDefinition, path));
+        var serviceDefinition = endpointsRouteBuilder.ServiceProvider.GetRequiredService<IPivotteServiceDefinitionBuilder>().BuildServiceDefinition<T>();
+        endpointsRouteBuilder.DataSources.Add(new PivotteServiceEndpointDataSource(serviceDefinition, path));
     }
 }

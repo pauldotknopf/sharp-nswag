@@ -5,9 +5,9 @@ namespace Pivotte.NetClient;
 
 public static class Extensions
 {
-    public static void AddPivotNetClientServices(this IServiceCollection services)
+    public static void AddPivotteNetClientServices(this IServiceCollection services)
     {
-        services.AddSingleton<IPivotClientGenerator, PivotClientGenerator>();
-        services.AddSingleton<IPivotClientInvoker, PivotClientInvoker>();
+        services.AddSingleton<IPivotteClientGenerator, PivotteClientGenerator>();
+        services.AddSingleton<IPivotteClientInvoker, PivotteClientInvoker>();
     }
 }

@@ -42,12 +42,12 @@ namespace Build
             
             Target("build", () =>
             {
-                RunShell($"dotnet build {commandBuildArgs} ./Pivot.sln");
+                RunShell($"dotnet build {commandBuildArgs} ./Pivotte.sln");
             });
             
             Target("publish", () =>
             {
-                RunShell($"dotnet pack {commandBuildArgs} --output {ExpandPath("./output")} {ExpandPath("./Pivot.sln")}");
+                RunShell($"dotnet pack {commandBuildArgs} --output {ExpandPath("./output")} {ExpandPath("./Pivotte.sln")}");
             });
             
             Target("default", DependsOn("clean", "update-version", "build", "publish"));
