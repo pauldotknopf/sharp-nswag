@@ -10,11 +10,25 @@ public class PivotServiceDefinitionBuilder : IPivotServiceDefinitionBuilder
 {
     public PivotServiceDefinition BuildServiceDefinition<T>()
     {
+        return BuildServiceDefinition(typeof(T));
+    }
+
+    public PivotServiceDefinition BuildServiceDefinition(Type type)
+    {
+        var name = "";
         var routes = new List<PivotRouteDefinition>();
 
-        foreach (var method in typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        var serviceAttributes = type.GetCustomAttributes(inherit: true).OfType<PivotServiceAttribute>().ToList();
+        
+        if(serviceAttributes.Count > 1) throw new NotSupportedException($"you can only have one PivotServiceDefinition attribute on {type.Name}");
+        if(serviceAttributes.Count == 0) throw new NotSupportedException($"you must provide a PivotServiceDefinition attribute on {type.Name}");
+
+        name = serviceAttributes[0].Name;
+
+        if (string.IsNullOrEmpty(name)) throw new NotSupportedException($"you must provide a name for {type.Name}");
+        
+        foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
         {
-            Console.WriteLine(method.Name);
             var attributes = method.GetCustomAttributes(inherit: true);
 
             var routeModel = GetRouteModel(attributes.OfType<IRouteTemplateProvider>());
@@ -96,7 +110,7 @@ public class PivotServiceDefinitionBuilder : IPivotServiceDefinitionBuilder
             
             routes.Add(new PivotRouteDefinition
             {
-                ServiceType = typeof(T),
+                ServiceType = type,
                 MethodInfo = method,
                 Route = routeModel.Template,
                 Order = routeModel.Order,
@@ -107,6 +121,7 @@ public class PivotServiceDefinitionBuilder : IPivotServiceDefinitionBuilder
 
         return new PivotServiceDefinition
         {
+            Name = name,
             Routes = routes
         };
     }
