@@ -1,4 +1,4 @@
-namespace Pivot.NetClient;
+namespace Pivotte.NetClient;
 
 public interface IPivotClientGenerator
 {

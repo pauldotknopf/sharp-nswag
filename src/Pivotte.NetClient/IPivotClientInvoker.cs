@@ -1,6 +1,6 @@
-using Pivot.Services;
+using Pivotte.Services;
 
-namespace Pivot.NetClient;
+namespace Pivotte.NetClient;
 
 public interface IPivotClientInvoker
 {

@@ -1,4 +1,4 @@
-namespace Pivot.Services;
+namespace Pivotte.Services;
 
 public interface IPivotServiceDefinitionBuilder
 {

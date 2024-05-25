@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pivot\Pivot.csproj" />
+    <ProjectReference Include="..\Pivotte\Pivotte.csproj" />
   </ItemGroup>
 
   <ItemGroup>

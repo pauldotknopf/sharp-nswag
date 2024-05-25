@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Pivot.Services;
-using Pivot.Services.Impl;
+using Pivotte.Services;
+using Pivotte.Services.Impl;
 
-namespace Pivot;
+namespace Pivotte;
 
 public static class Extensions
 {

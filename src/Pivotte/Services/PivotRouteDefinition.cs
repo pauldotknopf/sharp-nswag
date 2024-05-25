@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Pivot.Services;
+namespace Pivotte.Services;
 
 public class PivotRouteDefinition
 {

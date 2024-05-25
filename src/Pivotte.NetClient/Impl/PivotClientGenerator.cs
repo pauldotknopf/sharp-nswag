@@ -1,8 +1,8 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Routing;
-using Pivot.Services;
+using Pivotte.Services;
 
-namespace Pivot.NetClient.Impl;
+namespace Pivotte.NetClient.Impl;
 
 public class PivotClientGenerator : IPivotClientGenerator
 {

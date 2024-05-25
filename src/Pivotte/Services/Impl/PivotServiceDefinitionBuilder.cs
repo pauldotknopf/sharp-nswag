@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 
-namespace Pivot.Services.Impl;
+namespace Pivotte.Services.Impl;
 
 public class PivotServiceDefinitionBuilder : IPivotServiceDefinitionBuilder
 {

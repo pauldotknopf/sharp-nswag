@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Pivot.Services;
+namespace Pivotte.Services;
 
 public class PivotRouteParameterDefinition
 {

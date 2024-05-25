@@ -2,9 +2,9 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing.Patterns;
-using Pivot.Services;
+using Pivotte.Services;
 
-namespace Pivot.NetClient.Impl;
+namespace Pivotte.NetClient.Impl;
 
 public class PivotClientInvoker : IPivotClientInvoker
 {

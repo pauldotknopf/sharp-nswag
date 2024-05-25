@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 
-namespace Pivot.Services;
+namespace Pivotte.Services;
 
 internal class PivotServiceEndpointDataSource : EndpointDataSource
 {

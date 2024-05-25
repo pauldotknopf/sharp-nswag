@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using Pivot.NetClient.Impl;
+using Pivotte.NetClient.Impl;
 
-namespace Pivot.NetClient;
+namespace Pivotte.NetClient;
 
 public static class Extensions
 {

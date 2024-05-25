@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Pivot.Services.Impl;
+namespace Pivotte.Services.Impl;
 
 public class PivotResponseHandler : IPivotResponseHandler
 {

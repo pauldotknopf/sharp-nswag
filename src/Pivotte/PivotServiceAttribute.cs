@@ -1,4 +1,4 @@
-namespace Pivot;
+namespace Pivotte;
 
 [AttributeUsage(AttributeTargets.Interface)]
 public class PivotServiceAttribute : Attribute

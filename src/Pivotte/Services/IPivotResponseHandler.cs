@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace Pivot.Services;
+namespace Pivotte.Services;
 
 public interface IPivotResponseHandler
 {
