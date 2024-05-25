@@ -18,10 +18,13 @@ namespace Pivotte.Generators.Impl;
 public class Generator : IGenerator
 {
     private readonly IPivotteServiceDefinitionBuilder _pivotteServiceDefinition;
+    private readonly IServiceProvider _applicationServices;
 
-    public Generator(IPivotteServiceDefinitionBuilder pivotteServiceDefinition)
+    public Generator(IPivotteServiceDefinitionBuilder pivotteServiceDefinition,
+        IServiceProvider applicationServices)
     {
         _pivotteServiceDefinition = pivotteServiceDefinition;
+        _applicationServices = applicationServices;
     }
     
     class FakeEnv : IHostEnvironment
@@ -51,7 +54,7 @@ public class Generator : IGenerator
         foreach (var service in services)
         {
             var serviceDefinition = _pivotteServiceDefinition.BuildServiceDefinition(service);
-            result.Add(new PivotteServiceEndpointDataSource(serviceDefinition, "/test", builder));
+            result.Add(new PivotteServiceEndpointDataSource(_applicationServices, serviceDefinition, "/test", builder));
         }
 
         return result;
@@ -109,6 +112,12 @@ public class Generator : IGenerator
     
     public async Task<OpenApiDocument> GenerateOpenApiDoc(Type serviceType)
     {
+        var docgen = new AspNetCoreOpenApiDocumentGenerator(new AspNetCoreOpenApiDocumentGeneratorSettings());
+        return await docgen.GenerateAsync(await GenerateApiDescriptionGroups(serviceType));
+    }
+
+    public Task<ApiDescriptionGroupCollection> GenerateApiDescriptionGroups(Type serviceType)
+    {
         var endpointDataSources = GetEndpointDataSources(new []{serviceType});
         
         var services = new ServiceCollection();
@@ -125,11 +134,9 @@ public class Generator : IGenerator
         var sp = services.BuildServiceProvider();
 
         var apiDescriptionGroupCollectionProvider = sp.GetRequiredService<IApiDescriptionGroupCollectionProvider>();
-
-        var docgen = new AspNetCoreOpenApiDocumentGenerator(new AspNetCoreOpenApiDocumentGeneratorSettings());
-        return await docgen.GenerateAsync(apiDescriptionGroupCollectionProvider.ApiDescriptionGroups);
+        return Task.FromResult(apiDescriptionGroupCollectionProvider.ApiDescriptionGroups);
     }
-
+    
     class DelDisposable : IDisposable
     {
         private readonly Action _action;

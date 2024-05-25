@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -41,7 +42,7 @@ public class PivotteServiceDefinitionBuilder : IPivotteServiceDefinitionBuilder
             }
             
             var verbs = GetHttpMethods(attributes.OfType<IActionHttpMethodProvider>());
-
+           
             if (verbs.Count == 0) throw new NotSupportedException($"you must provide an HTTP verb for {method.Name}");
 
             if (verbs.Count > 1) throw new NotSupportedException($"you can only provide one HTTP verb for {method.Name}");
@@ -76,7 +77,7 @@ public class PivotteServiceDefinitionBuilder : IPivotteServiceDefinitionBuilder
                 parameterIndex++;
             }
 
-            if (parameters.Count(x => x.Source.IsFromRequest) > 1)
+            if (parameters.Count(x => x.Source == BindingSource.Body) > 1)
             {
                 throw new NotSupportedException($"method {method.Name} has multiple request body parameters");
             }

@@ -19,10 +19,14 @@ public class ServiceDefinitionBuilderTests : BaseTests
     {
         [HttpGet]
         [Route("route1")]
+        [Consumes("application/json")]
+        [Produces("application/json")]
         void Route1();
 
         [HttpPost]
         [Route("route2")]
+        [Consumes("application/json")]
+        [Produces("application/json")]
         void Route2();
     }
     

@@ -1,8 +1,11 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Pivotte.Tests;
 
@@ -38,6 +41,10 @@ public class EndpointInvokingTests : BaseTests
         [Route("MethodWithResultAsync")]
         [HttpPost]
         ValueTask<JsonBody> MethodWithResultAsync();
+
+        [Route("methodwithmultipleparams/{id}")]
+        [HttpPost]
+        ValueTask<JsonBody> MethodWithMultipleParameters([FromRoute]int id, [FromBody]JsonBody request);
     }
     
     [TestMethod]
@@ -155,6 +162,36 @@ public class EndpointInvokingTests : BaseTests
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, "/test/methodwithresultasync");
         var responseContent = await client.SendAsync(requestMessage);
         
+        responseContent.StatusCode.Should().Be(HttpStatusCode.OK);
+        var responseBody = await responseContent.Content.ReadAsStringAsync();
+        var responseDeserialized = JsonSerializer.Deserialize<JsonBody>(responseBody,new JsonSerializerOptions()
+        {
+            PropertyNameCaseInsensitive = true,
+        });
+        responseDeserialized.Should().NotBeNull();
+        responseDeserialized.Name.Should().Be("Paul");
+        responseDeserialized.YearOfBirth.Should().Be(1988);
+    }
+    
+    [TestMethod]
+    public async Task CanInvokeMethodWithMultipleParameters()
+    {
+        var impl = new Mock<ITestService>();
+        impl.Setup(x => x.MethodWithMultipleParameters(1, It.IsAny<JsonBody>()))
+            .Returns(ValueTask.FromResult(new JsonBody
+            {
+                Name = "Paul",
+                YearOfBirth = 1988
+            }));
+        
+        var testServer = BuildTestServer("test", impl.Object);
+       
+        var client = testServer.CreateClient();
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "/test/methodwithmultipleparams/1");
+        requestMessage.Content = new StringContent(JsonConvert.SerializeObject(new JsonBody()), new MediaTypeHeaderValue("application/json"));
+        var responseContent = await client.SendAsync(requestMessage);
+
+        var content = await responseContent.Content.ReadAsStringAsync();
         responseContent.StatusCode.Should().Be(HttpStatusCode.OK);
         var responseBody = await responseContent.Content.ReadAsStringAsync();
         var responseDeserialized = JsonSerializer.Deserialize<JsonBody>(responseBody,new JsonSerializerOptions()

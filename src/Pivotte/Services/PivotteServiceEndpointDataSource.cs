@@ -10,31 +10,13 @@ namespace Pivotte.Services;
 
 internal class PivotteServiceEndpointDataSource : EndpointDataSource
 {
-    
-    
-    public PivotteServiceEndpointDataSource(PivotteServiceDefinition serviceDefinition, string path, Action<RouteHandlerBuilder, PivotteRouteDefinition> builder = null)
+    public PivotteServiceEndpointDataSource(IServiceProvider applicationServices, PivotteServiceDefinition serviceDefinition, string path, Action<RouteHandlerBuilder, PivotteRouteDefinition> builder = null)
     {
         var endpoints = new List<Endpoint>();
 
         foreach (var route in serviceDefinition.Routes)
         {
-            RouteEndpointBuilder endpointBuilder = null;
-            
-            endpointBuilder = new RouteEndpointBuilder(async context =>
-                {
-                    var service = context.RequestServices.GetRequiredService(route.ServiceType);
-        
-                    var del = RequestDelegateFactory.Create(route.MethodInfo,
-                        x => service,
-                        new RequestDelegateFactoryOptions
-                        {
-                            // ReSharper disable once AccessToModifiedClosure
-                            EndpointBuilder = endpointBuilder,
-                            ServiceProvider = context.RequestServices
-                        });
-                    
-                    await del.RequestDelegate(context);
-                },
+            var endpointBuilder = new RouteEndpointBuilder(null,
                 RoutePatternFactory.Parse(Path.Combine(path, route.Route)), route.Order ?? 0);
             endpointBuilder.Metadata.Add(new HttpMethodMetadata(new []{route.Verb}));
             endpointBuilder.Metadata.Add(route.MethodInfo);
@@ -51,6 +33,21 @@ internal class PivotteServiceEndpointDataSource : EndpointDataSource
                     e(endpointBuilder);
                 }
             }
+            
+            RequestDelegateFactory.Create(route.MethodInfo,
+                x => x.RequestServices.GetRequiredService(route.ServiceType),
+                new RequestDelegateFactoryOptions
+                {
+                    EndpointBuilder = endpointBuilder,
+                    ServiceProvider = applicationServices
+                },
+                RequestDelegateFactory.InferMetadata(route.MethodInfo, new RequestDelegateFactoryOptions
+                {
+                    EndpointBuilder = endpointBuilder,
+                    ServiceProvider = applicationServices
+                }));
+            
+            
 
             endpoints.Add(endpointBuilder.Build());
         }
