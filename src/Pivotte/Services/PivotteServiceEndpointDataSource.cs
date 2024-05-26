@@ -21,19 +21,17 @@ internal class PivotteServiceEndpointDataSource : EndpointDataSource
             endpointBuilder.Metadata.Add(new HttpMethodMetadata(new []{route.Verb}));
             endpointBuilder.Metadata.Add(route.MethodInfo);
 
-            if (builder != null)
-            {
-                var conventionBuilder = new PivotteServiceConventionBuilder();
-                var handler = new RouteHandlerBuilder(new IEndpointConventionBuilder[] { conventionBuilder });
+            var conventionBuilder = new PivotteServiceConventionBuilder();
+            var handler = new RouteHandlerBuilder(new IEndpointConventionBuilder[] { conventionBuilder });
                 
-                builder(handler, route);
-                
-                foreach (var e in conventionBuilder.Conventions)
-                {
-                    e(endpointBuilder);
-                }
-            }
+            builder?.Invoke(handler, route);
+            handler.WithTags(serviceDefinition.Name);
             
+            foreach (var e in conventionBuilder.Conventions)
+            {
+                e(endpointBuilder);
+            }
+
             RequestDelegateFactory.Create(route.MethodInfo,
                 x => x.RequestServices.GetRequiredService(route.ServiceType),
                 new RequestDelegateFactoryOptions

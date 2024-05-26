@@ -1,83 +1,166 @@
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.Extensions.Options;
 using Pivotte.Services;
 
 namespace Pivotte.NetClient.Impl;
 
 public class PivotteClientInvoker : IPivotteClientInvoker
 {
-    private readonly RoutePatternTransformer _routePatternTransformer;
+    private readonly IOptions<MvcOptions> _mvcOptions;
+    private readonly OutputFormatterSelector _formatterSelector;
 
-    public PivotteClientInvoker(RoutePatternTransformer routePatternTransformer)
+    public PivotteClientInvoker(IOptions<MvcOptions> mvcOptions,
+        OutputFormatterSelector formatterSelector)
     {
-        _routePatternTransformer = routePatternTransformer;
+        _mvcOptions = mvcOptions;
+        _formatterSelector = formatterSelector;
     }
-    
-    public async Task<object> Invoke(PivotteServiceDefinition serviceDefinition, PivotteRouteDefinition routeDefinition, HttpClient client, object[] args)
+
+    public async Task<object> Invoke(PivotteServiceDefinition serviceDefinition, PivotteRouteDefinition routeDefinition,
+        ApiDescription apiDescription, HttpClient client, object[] args)
     {
         var routeTemplate = routeDefinition.Route;
+
         var queryParameters = new Dictionary<string, string>();
-        
-        foreach (var parameter in routeDefinition.Parameters)
+
+        HttpContent httpContent = null;
+        int index = 0;
+        foreach (var parameter in apiDescription.ParameterDescriptions)
         {
+            if (parameter.Source == BindingSource.Query)
+            {
+                queryParameters[parameter.Name] = args[index]?.ToString();
+            }
+
+            if (parameter.Source == BindingSource.Body)
+            {
+                var httpContext = new DefaultHttpContext();
+                httpContext.Response.Body = new MemoryStream();
+
+                var outputContext = new OutputFormatterWriteContext(
+                    httpContext,
+                    (stream, encoding) => throw new NotSupportedException("don't support raw binary writing"),
+                    parameter.Type,
+                    args[index]);
+                outputContext.ContentType = apiDescription.SupportedRequestFormats.First().MediaType;
+
+                var mediaTypes = new MediaTypeCollection();
+                foreach (var type in apiDescription.SupportedRequestFormats)
+                {
+                    mediaTypes.Add(type.MediaType);
+                }
+
+                var outputFormatter = _formatterSelector.SelectFormatter(outputContext,
+                    _mvcOptions.Value.OutputFormatters,
+                    mediaTypes);
+
+                if (outputFormatter == null)
+                {
+                    throw new NotSupportedException("no output formatter found");
+                }
+
+                Encoding encoding;
+                if (outputFormatter is TextOutputFormatter textOutputFormatter)
+                {
+                    encoding = textOutputFormatter.SelectCharacterEncoding(outputContext);
+                }
+                else
+                {
+                    encoding = Encoding.UTF8;
+                }
+
+                await outputFormatter.WriteAsync(outputContext);
+
+                if (string.IsNullOrEmpty(httpContext.Response.ContentType))
+                {
+                    throw new NotSupportedException("output formatter didn't set content type");
+                }
+
+                httpContext.Response.Body.Position = 0;
+                using StreamReader reader = new(httpContext.Response.Body, encoding);
+                httpContent = new StringContent(
+                    await reader.ReadToEndAsync(),
+                    encoding,
+                    MediaTypeHeaderValue.Parse(httpContext.Response.ContentType));
+            }
+
             if (parameter.Source == BindingSource.Path)
             {
-                routeTemplate = routeTemplate.Replace($"{{{parameter.Name}}}", args[parameter.Index].ToString());
+                routeTemplate = routeTemplate.Replace($"{{{parameter.Name}}}", args[index].ToString());
             }
-            else if (parameter.Source == BindingSource.Query)
-            {
-                queryParameters.Add(parameter.Name, args[parameter.Index].ToString());
-            }
+
+            index++;
         }
 
-        if(queryParameters.Count > 0)
+        if (queryParameters.Count > 0)
         {
             routeTemplate += "?" + string.Join("&", queryParameters.Select(x => $"{x.Key}={x.Value}"));
         }
-        
+
         var request = new HttpRequestMessage(new HttpMethod(routeDefinition.Verb), routeTemplate);
+        request.Content = httpContent;
 
-        var bodyParameter = routeDefinition.Parameters.SingleOrDefault(x => x.Source == BindingSource.Body);
-        if (bodyParameter != null)
-        {
-            request.Content = new StringContent(JsonSerializer.Serialize(args[bodyParameter.Index],
-                new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                }),
-                Encoding.UTF8,
-                "application/json");
-        }
-        
         var response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
 
-        var returnType = routeDefinition.MethodInfo.ReturnType;
-        object result = null;
-
-        if (routeDefinition.MethodInfo.ReturnType != typeof(void) && routeDefinition.MethodInfo.ReturnType != typeof(Task))
+        foreach (var responseType in apiDescription.SupportedResponseTypes)
         {
-            if (returnType.IsGenericType)
+            if (responseType.StatusCode == (int)response.StatusCode)
             {
-                if (returnType.GetGenericTypeDefinition() == typeof(Task<>))
+                var format = responseType.ApiResponseFormats.FirstOrDefault(x =>
+                    x.MediaType == response.Content.Headers.ContentType.MediaType);
+                if (format == null)
                 {
-                    returnType = returnType.GetGenericArguments()[0];
+                    // there is no response
                 }
-                else if (returnType.GetGenericTypeDefinition() == typeof(ValueTask<>))
+                else
                 {
-                    returnType = returnType.GetGenericArguments()[0];
+                    var modelState = new ModelStateDictionary();
+                    var inputFormatterContext = new InputFormatterContext(new DefaultHttpContext
+                        {
+                            HttpContext =
+                            {
+                                Request =
+                                {
+                                    ContentType = format.MediaType,
+                                    Body = response.Content.ReadAsStream()
+                                }
+                            }
+                        },
+                        "model",
+                        modelState,
+                        responseType.ModelMetadata,
+                        (stream, encoding) => throw new NotSupportedException());
+                    var inputFormatter =
+                        _mvcOptions.Value.InputFormatters.FirstOrDefault(x => x.CanRead(inputFormatterContext));
+
+                    if (inputFormatter == null)
+                    {
+                        throw new NotSupportedException($"no input formatter found for request {format.MediaType}");
+                    }
+
+                    var result = await inputFormatter.ReadAsync(inputFormatterContext);
+
+                    if (result.HasError)
+                    {
+                        // Don't return type if there was errors.
+                        return null;
+                    }
+
+                    return result.Model;
                 }
             }
-            var responseBody = await response.Content.ReadAsStringAsync();
-            result = JsonSerializer.Deserialize(responseBody, returnType,
-                new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
         }
 
-        return result;
+        return null;
     }
 }

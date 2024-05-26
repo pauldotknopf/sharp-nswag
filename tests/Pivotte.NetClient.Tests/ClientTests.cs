@@ -25,15 +25,19 @@ public class ClientTests : BaseTests
 
         [Route("routevalue/{id}")]
         [HttpPost]
-        Task RouteWithRouteValue([FromRoute]int id);
+        Task RouteWithRouteValue(int id);
         
         [Route("routewithjsonbody")]
         [HttpPost]
-        Task RouteWithJsonBody([FromBody]JsonBody body);
+        Task RouteWithJsonBody(JsonBody body);
         
         [Route("methodwithresult")]
         [HttpPost]
         Task<JsonBody> MethodWithResult();
+        
+        [Route("methodwithmultipleparams/{id}")]
+        [HttpPost]
+        Task<JsonBody> MethodWithMultipleParameters(int id, JsonBody body);
     }
     
     [TestMethod]
@@ -96,6 +100,34 @@ public class ClientTests : BaseTests
         var response = await client.MethodWithResult();
         
         response.Name.Should().Be("Paul");
+        response.YearOfBirth.Should().Be(1988);
+    }
+    
+    [TestMethod]
+    public async Task CanInvokeEndpointWithMultipleParameters()
+    {
+        var impl = new Mock<ITestService>();
+        impl.Setup(x => x.MethodWithMultipleParameters(It.IsAny<int>(), It.IsAny<JsonBody>()))
+            .Returns(new Func<int, JsonBody, Task<JsonBody>>((routeValue, body) =>
+            {
+                return Task.FromResult(new JsonBody
+                {
+                    Name = body.Name + " " + routeValue,
+                    YearOfBirth = body.YearOfBirth
+                });
+            }));
+        
+        var testServer = BuildTestServer("", impl.Object);
+        var httpClient = testServer.CreateClient();
+        var clientGenerator = testServer.Services.GetRequiredService<IPivotteClientGenerator>();
+        var client = clientGenerator.Generate<ITestService>(httpClient);
+        var response = await client.MethodWithMultipleParameters(2, new JsonBody
+        {
+            Name = "Paul",
+            YearOfBirth = 1988
+        });
+        
+        response.Name.Should().Be("Paul 2");
         response.YearOfBirth.Should().Be(1988);
     }
 }

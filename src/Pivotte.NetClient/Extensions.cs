@@ -7,6 +7,7 @@ public static class Extensions
 {
     public static void AddPivotteNetClientServices(this IServiceCollection services)
     {
+        services.AddMvcCore();
         services.AddSingleton<IPivotteClientGenerator, PivotteClientGenerator>();
         services.AddSingleton<IPivotteClientInvoker, PivotteClientInvoker>();
     }
