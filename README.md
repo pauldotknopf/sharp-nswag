@@ -66,3 +66,26 @@ var product = await client.GetProduct(3, new GetProductRequest
     Country = "US"
 });
 ```
+
+# Why?
+
+Maybe you are a large organization with many APIs. Having the definition of each API in a single repository can allow teams to easily communicate their changes (using PRs). Having them in the same repository would also allow shared types across different APIs, ensuring consistency/uniformity.
+
+```
+[PivotteService("MicroServiceOne")]
+public interface IMicroServiceOne
+{
+    [Route("dostuff")]
+    [HttpPost]
+    void DoStuff();
+}
+[PivotteService("MicroServiceTwo")]
+public interface IMicroServiceTwo
+{
+    [Route("dostuff")]
+    [HttpPost]
+    void DoStuff();
+}
+```
+
+This single repository could also auto-deploy an NPM package containing the TypeScript definitions for invoking the APIs.
