@@ -1,43 +1,68 @@
-# What?
+# Overview
 
-Define your API using protobuf:
+```Pivotte``` is a library that helps you declare your APIs separately from your implementation.
 
-**api.protobuf**
-
-```
-syntax = "proto3";
-message SearchRequest {
-    string query = 1;
-    int32 page_number = 2;
-    int32 results_per_page = 3;
-}
-message SearchResponse {
-    repeated string result = 1;
-}
-service SearchService {
-    rpc Search(SearchRequest) returns (SearchResponse);
-}
-```
-
-**Controllers/ServiceServiceController.vs**
 ```csharp
-class SearchServiceController
+public class GetProductRequest
 {
-    public SearchResponse Search(SearchRequest request)
+    public string Country { get; set; }
+}
+
+[PivotteService("Product")]
+public interface IProductService
+{
+    [Route("get/{id}")]
+    [HttpPost]
+    Product GetProduct([FromRoute]int id, [FromBody]GetProductRequest request);
+}
+```
+
+Auto wire-up the definition to wire up an implementation, using ASP.NET Minimal APIs.
+
+```csharp
+public class ProductService : IProductService
+{
+    public Product GetProduct(int id, GetProductRequest request)
     {
-        return new SearchResponse();
+        return new Product
+        {
+            Id = id,
+            Name = "Product " + id + " " + request.Country,
+            Price = id * 10f
+        };
     }
 }
+// ...
+builder.Services.AddSingleton<IProductService, ProductService>();
+// ...
+app.MapPivotteService<IProductService>("api");
+// ...
+```
 
-class SearchRequest
-{
-    public string Query { get; set; }
-    public int PageNumber { get; set; }
-    public int ResultsPerPage { get; set; }
-}
+With ```Pivotte.Generators```, you can generate client-side code (supported by NSwag).
 
-class SearchResponse
+```csharp
+var generator = sp.GetService<IGenerator>();
+var code = generator.GenerateClientTypeScript(config =>
 {
-    public List<string> Result { get; set; }
-}
+    config.AddService<IProductService>();
+});
+// save 'code' wherever makes sense to you
+```
+
+With ```Pivotte.NetClient```, you can invoke an API from another .NET project with the same api definition as well.
+
+```csharp
+var clientGenerator = sp.GetService<IPivotteClientGenerator>();
+var httpClient = new HttpClient
+{
+    BaseAddress = new Uri("https://somewhere.com/api")
+};
+// "client" is a runtime-generated implementation of IProductService.
+// invoking methods will cause an HTTP request underneath the hood.
+var client = clientGenerator.Generate<IProductService>(httpClient);
+var product = await client.GetProduct(3, new GetProductRequest
+{
+    Country = "US"
+});
 ```

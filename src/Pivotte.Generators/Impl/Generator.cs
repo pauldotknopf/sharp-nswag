@@ -49,6 +49,10 @@ public class Generator : IGenerator
 
     private List<EndpointDataSource> GetEndpointDataSources(IEnumerable<Type> services, Action<RouteHandlerBuilder, PivotteRouteDefinition> builder = null)
     {
+        var client = new HttpClient
+        {
+            BaseAddress = new Uri("https://somewhere.com/api")
+        };
         var result = new List<EndpointDataSource>();
         
         foreach (var service in services)
