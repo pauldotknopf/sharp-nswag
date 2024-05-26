@@ -17,7 +17,7 @@ public interface IProductService
 }
 ```
 
-Auto wire-up the definition to wire up an implementation, using ASP.NET Minimal APIs.
+Auto wire-up the definition to an implementation, using ASP.NET Minimal APIs.
 
 ```csharp
 public class ProductService : IProductService
