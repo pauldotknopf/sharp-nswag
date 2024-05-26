@@ -1,6 +1,6 @@
 # Overview
 
-```Pivotte``` is a library that helps you declare your APIs separately from your implementation.
+```Pivotte``` is a library that helps you declare your APIs separately from your implementation. Think of it like Swagger, but in C#, with type safety.
 
 ```csharp
 public class GetProductRequest
