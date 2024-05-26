@@ -54,7 +54,7 @@ public class Generator : IGenerator
         foreach (var service in services)
         {
             var serviceDefinition = _pivotteServiceDefinition.BuildServiceDefinition(service);
-            result.Add(new PivotteServiceEndpointDataSource(_applicationServices, serviceDefinition, "/test", builder));
+            result.Add(new PivotteServiceEndpointDataSource(_applicationServices, serviceDefinition, string.Empty, builder));
         }
 
         return result;
