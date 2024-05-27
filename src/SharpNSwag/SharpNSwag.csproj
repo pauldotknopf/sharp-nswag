@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSwag.AspNetCore" Version="14.0.7" />
+    <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.0.7" />
+  </ItemGroup>
+  
+</Project>

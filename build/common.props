@@ -2,9 +2,9 @@
     <Import Project="version.props" />
     <PropertyGroup>
         <Authors>Paul Knopf</Authors>
-        <Description>A tool to help you declare API endpoints for both clients and servers.</Description>
+        <Description>Various helpers for NSwag</Description>
         <Copyright>2024</Copyright>
-        <PackageProjectUrl>https://github.com/pauldotknopf/pivot</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/pauldotknopf/pivot</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/pauldotknopf/sharp-nswag</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/pauldotknopf/sharp-nswag</RepositoryUrl>
     </PropertyGroup>
 </Project>

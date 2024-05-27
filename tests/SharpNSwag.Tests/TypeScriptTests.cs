@@ -2,7 +2,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Pivotte.Generators.Tests;
+namespace Pivotte.Tests;
 
 [TestClass]
 public class TypeScriptTests
@@ -11,7 +11,7 @@ public class TypeScriptTests
     
     public TypeScriptTests()
     {
-        _sp = new ServiceCollection().AddPivotteServices().AddPivotGeneratorServices().BuildServiceProvider();
+        _sp = new ServiceCollection().AddSharpNSwagServices().BuildServiceProvider();
     }
     
     public class SharedResponse
@@ -24,30 +24,34 @@ public class TypeScriptTests
         public string Name { get; set; }
     }
     
-    [PivotteService("Foo")]
-    public interface ITestService1
+    public abstract class TestService1
     {
         [HttpGet]
         [Route("route1")]
-        SharedResponse Route1([FromBody]NonSharedRequest request);
+        public virtual SharedResponse Route1([FromBody] NonSharedRequest request)
+        {
+            throw new NotImplementedException();
+        }
     }
     
-    [PivotteService("Bar")]
-    public interface ITestService2
+    public abstract class TestService2
     {
         [HttpGet]
         [Route("route2")]
-        SharedResponse Route2();
+        public virtual SharedResponse Route2()
+        {
+            throw new NotImplementedException();
+        }
     }
     
     [TestMethod]
     public async Task CanGenerateTypeScriptFiles()
     {
-        var generator = _sp.GetRequiredService<IGenerator>();
+        var generator = _sp.GetRequiredService<ISharpNSwagGenerator>();
         var ts = await generator.GenerateClientTypeScript(config =>
         {
-            config.AddService<ITestService1>();
-            config.AddService<ITestService2>();
+            config.AddController<TestService2>();
+            config.AddController<TestService1>();
         });
 
         ts.Should().NotBeNullOrEmpty();
