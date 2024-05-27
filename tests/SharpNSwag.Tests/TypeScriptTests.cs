@@ -1,8 +1,6 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Pivotte.Tests;
+namespace SharpNSwag.Tests;
 
 [TestClass]
 public class TypeScriptTests

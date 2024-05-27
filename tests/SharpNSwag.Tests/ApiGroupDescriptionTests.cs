@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Pivotte.Tests;
+namespace SharpNSwag.Tests;
 
 [TestClass]
 public class ApiGroupDescriptionTests

@@ -3,7 +3,7 @@ using NSwag;
 using NSwag.CodeGeneration;
 using NSwag.CodeGeneration.TypeScript;
 
-namespace Pivotte.Impl;
+namespace SharpNSwag.Impl;
 
 public class SharpNSwagGenerator : ISharpNSwagGenerator
 {

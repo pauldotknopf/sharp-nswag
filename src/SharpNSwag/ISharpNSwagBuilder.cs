@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using NSwag;
 
-namespace Pivotte;
+namespace SharpNSwag;
 
 public interface ISharpNSwagBuilder
 {

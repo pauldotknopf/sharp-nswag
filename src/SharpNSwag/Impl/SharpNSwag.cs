@@ -9,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 using NSwag;
 using NSwag.Generation.AspNetCore;
 
-namespace Pivotte.Impl;
+namespace SharpNSwag.Impl;
 
 public class SharpNSwagBuilder : ISharpNSwagBuilder
 {
@@ -64,7 +64,7 @@ public class SharpNSwagBuilder : ISharpNSwagBuilder
 
     class FakeEnv : IHostEnvironment
     {
-        public string ApplicationName { get; set; } = "Pivot";
+        public string ApplicationName { get; set; } = "SharpNSwag";
         public IFileProvider ContentRootFileProvider
         {
             get => throw new NotSupportedException();

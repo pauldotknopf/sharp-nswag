@@ -1,4 +1,4 @@
-namespace Pivotte;
+namespace SharpNSwag;
 
 public class GenerateConfig
 {

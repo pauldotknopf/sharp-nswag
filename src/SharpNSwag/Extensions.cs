@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using Pivotte.Impl;
+using SharpNSwag.Impl;
 
-namespace Pivotte;
+namespace SharpNSwag;
 
 public static class Extensions
 {
