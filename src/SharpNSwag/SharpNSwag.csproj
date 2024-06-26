@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -64,13 +64,8 @@ public class SharpNSwagGenerator : ISharpNSwagGenerator
         return sb.ToString();
     }
     
-    class CustomStringWriter : StringWriter
+    class CustomStringWriter(StringBuilder sb) : StringWriter(sb)
     {
-        public CustomStringWriter(StringBuilder sb) : base(sb)
-        {
-            
-        }
-
         public virtual bool Skip(string value)
         {
             return false;
@@ -86,24 +81,15 @@ public class SharpNSwagGenerator : ISharpNSwagGenerator
         }
     }
     
-    class TypeScriptStringWriter : CustomStringWriter
+    class TypeScriptStringWriter(StringBuilder sb, string exceptionClassName) : CustomStringWriter(sb)
     {
-        private readonly StringBuilder _sb;
-        private readonly string _exceptionClassName;
-
-        public TypeScriptStringWriter(StringBuilder sb, string exceptionClassName): base(sb)
-        {
-            _sb = sb;
-            _exceptionClassName = exceptionClassName;
-        }
-        
         private bool _alreadyRenderedException;
         private bool _rendering;
         private int _closingBracketCount = 0;
 
         public bool SkipDuplicateExceptionTypes(string value)
         {
-            if (value == $"export class {_exceptionClassName} extends Error {{")
+            if (value == $"export class {exceptionClassName} extends Error {{")
             {
                 _rendering = true;
             }
@@ -145,15 +131,8 @@ public class SharpNSwagGenerator : ISharpNSwagGenerator
         }
     }
     
-    class DelDisposable : IDisposable
+    class DelDisposable(Action del) : IDisposable
     {
-        private readonly Action _del;
-
-        public DelDisposable(Action del)
-        {
-            _del = del;
-        }
-        
         public static IDisposable Run(Action action)
         {
             return new DelDisposable(action);
@@ -161,7 +140,7 @@ public class SharpNSwagGenerator : ISharpNSwagGenerator
         
         public void Dispose()
         {
-            _del();
+            del();
         }
     }
 }
